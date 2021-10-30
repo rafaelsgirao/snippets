@@ -81,35 +81,36 @@ while True:
             color = color_yellow
 
 
-        if bat_val > previous_val:
-            color = color_green
-            #content = "<:stonks:833381927255539743>"
-            content = ""
-        elif bat_val == previous_val:
-            if init == True:
-                continue
-            color = color_yellow
-            content = ""
-        else:
-            color = color_red
-            #content = lyrics[lyrics_iter]
-            content = ""
-            if lyrics_iter == len(lyrics) - 1:
-                lyrics_iter = 0
+        delta = abs(bat_val - previous_val)
+        if delta / previous_val > previous_val / 100:
+            if bat_val > previous_val:
+                color = color_green
+                #content = "<:stonks:833381927255539743>"
+                content = ""
+            elif bat_val == previous_val:
+                if init == True:
+                    continue
+                color = color_yellow
+                content = ""
             else:
-                lyrics_iter += 1
+                color = color_red
+                #content = lyrics[lyrics_iter]
+                content = ""
+                if lyrics_iter == len(lyrics) - 1:
+                    lyrics_iter = 0
+                else:
+                    lyrics_iter += 1
 
-        msg = f"BAT {bat_val}€"
-        post_webhook(msg, color, content)
-        previous_val = bat_val
-        sleep(3600)
-        init = True
-
+            msg = f"BAT {bat_val}€"
+            post_webhook(msg, color, content)
+            previous_val = bat_val
+            sleep(60 * 15)
+            init = True
 
 
     except Exception as e:
         print("Exception!")
         print(e)
-        post_webhook("Connection failed to https://eur.rate.sx/1bat. \nSleeping 1 hour.", color_red, content="")
-        sleep(3600)
+        post_webhook("Connection failed to https://eur.rate.sx/1bat. \nSleeping 15 minutes.", color_red, content="")
+        sleep(60 * 15)
 
