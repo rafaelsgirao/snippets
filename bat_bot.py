@@ -3,12 +3,14 @@ import requests
 from time import sleep
 import os
 
+BAT_FILE = './bat_val'
+
 def get_bat():
     #return float("0.55")
     return float(requests.get("http://eur.rate.sx/1bat").text[:-1])
 
-def post_webhook(title, color, content=""):
 
+def post_webhook(title, color, content=""):
     webhook = os.environ["BAT_WEBHOOK_URL"]
 
     data = {
@@ -68,28 +70,49 @@ lyrics = ["I know, I know I've let you down",
         "It just keeps tumbling down, tumbling down, tumbling down...",
         "_It all returns to nothing_",
         "I just keep letting me down, letting me down, letting me down..."]
-
 lyrics_iter = 9
-init = False
-while True:
+
+
+def get_previous():
+    """
+    returns -1 if it fails to read BAT_FILE
+    """
+    try:
+        with open(BAT_FILE, 'r') as f:
+            val_str = f.read()
+            val = float(val_str)
+            return val
+    except:
+        return -1
+
+
+def save_previous(bat_val):
+    """
+    throws if opening BAT_FILE for writing fails
+    """
+    with open(BAT_FILE, 'w') as f:
+        f.write(str(bat_val))
+
+
+def main():
+    previous_val = get_previous()
 
     try:
         bat_val = round(get_bat(), 2)
 
-        if previous_val == "":
+        if previous_val == -1:
             previous_val = bat_val
             color = color_yellow
 
 
         delta = abs(bat_val - previous_val)
         if delta / previous_val > previous_val / 100:
+
             if bat_val > previous_val:
                 color = color_green
                 #content = "<:stonks:833381927255539743>"
                 content = ""
             elif bat_val == previous_val:
-                if init == True:
-                    continue
                 color = color_yellow
                 content = ""
             else:
@@ -103,14 +126,14 @@ while True:
 
             msg = f"BAT {bat_val}€"
             post_webhook(msg, color, content)
-            previous_val = bat_val
-            sleep(60 * 15)
+            save_previous(bat_val)
             init = True
-
 
     except Exception as e:
         print("Exception!")
         print(e)
         post_webhook("Connection failed to https://eur.rate.sx/1bat. \nSleeping 15 minutes.", color_red, content="")
-        sleep(60 * 15)
 
+
+if __name__ == '__main__':
+    main()
