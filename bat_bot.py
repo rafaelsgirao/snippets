@@ -104,13 +104,13 @@ while True:
             msg = f"BAT {bat_val}€"
             post_webhook(msg, color, content)
             previous_val = bat_val
-            sleep(3600)
+            sleep(60 * 15)
             init = True
 
 
     except Exception as e:
         print("Exception!")
         print(e)
-        post_webhook("Connection failed to https://eur.rate.sx/1bat. \nSleeping 1 hour.", color_red, content="")
-        sleep(3600)
+        post_webhook("Connection failed to https://eur.rate.sx/1bat. \nSleeping 15 minutes.", color_red, content="")
+        sleep(60 * 15)
 
