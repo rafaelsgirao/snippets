@@ -127,8 +127,14 @@ def main():
     try:
         bat = CoinValue("BAT")
         bat_val = bat.get_value()
-        bat.load_previous()
-        previous_val = bat.get_previous()
+        try:
+            bat.load_previous()
+            previous_val = bat.get_previous()
+        except IOError as e:
+            logging.info("Error ocurred while loading previous val file, continuing.")
+            filetime_condition = False
+            previous_val = False
+
         logging.debug(f"Var debug: bat_val='{bat_val}', previous='{previous_val}'")
 
         if previous_val == False:
@@ -145,12 +151,18 @@ def main():
 
             #Epoch
             target_file = bat.get_target_file()
-            logging.fatal(f"target_file = {target_file}")
+            if not (os.path.isfile(target_file)):
+                logging.info("Previous value file doesn't yet exist, ignoring on delta check")
+                filetime_condition = False
+            else: 
+                logging.debug(f"target_file = {target_file}")
+
             file_modified_time = int(os.path.getmtime(target_file))
             current_time = int(time.time())
 
-            if (delta / previous_val > previous_val / 100) or (current_time - file_modified_time > 3600*4):
-                logging.debug("Delta condition passed")
+            filetime_condition = current_time - file_modified_time > 3600*4
+            if (delta / previous_val > previous_val / 100) or (filetime_condition):
+                logging.debug("Deltas condition passed")
                 if bat_val > previous_val:
                     color = COLOR_GREEN
                     #content = "<:stonks:833381927255539743>"
