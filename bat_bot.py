@@ -12,6 +12,8 @@ COLOR_RED = 16711680
 COLOR_YELLOW = 16776960
 COLOR_GREEN = 6750054
 STORE_FILE = "coin_val-{}.txt"
+SENSITIVITY = 2
+CHANGE_PERCENTAGE = 5/100
 
 COINBOT_WEBHOOK_URL = os.getenv("COINBOT_WEBHOOK_URL")
 
@@ -55,14 +57,14 @@ class CoinValue:
             r.raise_for_status()
             coin_value = float(r.json()["data"]["amount"])
             logging.debug(f"Sucessfully got {self.coin} value from Coinbase, raw val={coin_value}, code {r.status_code}")
-            return round(coin_value, 3)
+            return round(coin_value, SENSITIVITY)
     
         def get_value_rate_sx():
             coin_adapted = self.coin.lower()
             r = requests.get(f"https://eur.rate.sx/1{coin_adapted}")
             coin_value = float(r.text)
             logging.debug(f"Sucessfully got {self.coin}/{coin_adapted} value from rate.sx, raw val={coin_value}, code {r.status_code}")
-            return round(coin_value, 3)
+            return round(coin_value, SENSITIVITY)
 
         endpoints = [get_value_coinbase, get_value_rate_sx]
         for endpoint in endpoints:
@@ -161,7 +163,7 @@ def main():
             current_time = int(time.time())
 
             filetime_condition = current_time - file_modified_time > 3600*4
-            if (delta / previous_val > previous_val / 100) or (filetime_condition):
+            if (delta / previous_val > CHANGE_PERCENTAGE) or (filetime_condition):
                 logging.debug("Deltas condition passed")
                 if bat_val > previous_val:
                     color = COLOR_GREEN
