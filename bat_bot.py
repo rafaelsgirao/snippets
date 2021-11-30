@@ -120,7 +120,7 @@ def post_webhook(title, color, content=""):
     try:
         result.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        logging.error(f"HTTPError while delivering Webhook. Reason: {str(e)}")
+        logging.error(f"HTTPError while delivering Webhook. Reason: {str(err)}")
     else:
         logging.info("Webhook delivered successfully, code {}.".format(result.status_code))
 
