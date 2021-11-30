@@ -102,8 +102,39 @@ class CoinValue:
             logging.error(f"Failed to load file '{self.target_file}'. Reason: {str(e)}")
 
 def post_webhook(title, color, content=""):
-    webhook = os.environ["COINBOT_WEBHOOK_URL"]
+    lyrics = ["I know, I know I've let you down",
+        "I've been a fool to myself.",
+        "I thought that I could live for no one else",
+        "But now, through all the hurt and pain",
+        "It's time for me to respect",
+        "The ones you hodl mean more than anything.",
+        "So with sadness in my heart",
+        "I feel the best thing I could do",
+        "Is sell it all, and leave forever",
+        "What's bought is bought, it feels so bad",
+        "What once was happy now is sad",
+        "I'll never love again.",
+        "My world is ending.",
+        "I wish that I could turn back time",
+        "'Cause now the guilt is all mine.",
+        "Can't live without the trust from those you love",
+        "I know we can't forget the past",
+        "You can't forget love and pride",
+        "Because of that it's killing me inside",
+        "_It all returns to nothing_",
+        "It all comes tumbling down, tumbling down, tumbling down...",
+        "_It all returns to nothing_",
+        "I just keep letting me down, letting me down, letting me down...",
+        "In my heart of hearts, I know I can never love BAT again.",
+        "Everything that matters to me matters in this world.",
+        "_It all returns to nothing_",
+        "It just keeps tumbling down, tumbling down, tumbling down...",
+        "_It all returns to nothing_",
+        "I just keep letting me down, letting me down, letting me down..."]
+    lyrics_iter = 0
 
+    webhook = os.environ["COINBOT_WEBHOOK_URL"]
+        
     data = {
         "username" : "Stonks",
         "avatar_url" : "https://cdn.discordapp.com/emojis/833432167756464184.png?v=1",
@@ -112,10 +143,15 @@ def post_webhook(title, color, content=""):
         {
           "title": title,
           "description": content,
-          "color": color
+          "color": color,
+          "footer": lyrics[lyrics_iter] 
         }
       ]
     }
+    if lyrics_iter == len(lyrics) - 1:
+        lyrics_iter = 0
+    else:
+        lyrics_iter += 1
     result = requests.post(webhook, json = data)
     try:
         result.raise_for_status()
