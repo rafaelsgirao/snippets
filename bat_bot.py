@@ -144,7 +144,9 @@ def post_webhook(title, color, content=""):
           "title": title,
           "description": content,
           "color": color,
-          "footer": lyrics[lyrics_iter] 
+          "footer": {
+                  "text": lyrics[lyrics_iter]
+                } 
         }
       ]
     }
