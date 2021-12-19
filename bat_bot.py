@@ -13,8 +13,8 @@ COLOR_YELLOW = 16776960
 COLOR_GREEN = 6750054
 STORE_FILE = "coin_val-{}.txt"
 SENSITIVITY = 2
-TIME_BOUND = 6 * 60 * 60  # 6 hours
-CHANGE_BOUND = 0.10  # 10%
+TIME_BOUND = 3600*6
+CHANGE_BOUND = 10/100
 
 COINBOT_WEBHOOK_URL = os.getenv("COINBOT_WEBHOOK_URL")
 
@@ -126,12 +126,7 @@ def post_webhook(title, color, content=""):
         logging.info("Webhook delivered successfully, code {}.".format(result.status_code))
 
 def update_condition(time, change):
-    left_up = pow(e, time/MINUTE_THRESHOLD) - 1
-    left_down = e - 1
-    right_up = pow(e, change/DELTA_THRESHOLD) -1
-    right_down = e - 1
-
-    return (left_up/left_down + right_up/right_down) >= 1
+    return (time/TIME_BOUND)**2 + (change/CHANGE_BOUND)**2 >= 1
         
 def main():
     logging.debug(f"Script started.")
