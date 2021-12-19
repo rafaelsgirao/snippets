@@ -126,6 +126,7 @@ def post_webhook(title, color, content=""):
         logging.info("Webhook delivered successfully, code {}.".format(result.status_code))
 
 def update_condition(time, change):
+    from math import e
     left_up = pow(e, time/MINUTE_THRESHOLD) - 1
     left_down = e - 1
     right_up = pow(e, change/DELTA_THRESHOLD) -1
