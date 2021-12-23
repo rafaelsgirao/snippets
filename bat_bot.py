@@ -127,9 +127,9 @@ def post_webhook(title, color, content=""):
 
 def update_condition(time, change):
     from math import e
-    left_up = pow(e, time/MINUTE_THRESHOLD) - 1
+    left_up = pow(e, time/TIME_BOUND) - 1
     left_down = e - 1
-    right_up = pow(e, change/DELTA_THRESHOLD) -1
+    right_up = pow(e, change/CHANGE_BOUND) -1
     right_down = e - 1
 
     return (left_up/left_down + right_up/right_down) >= 1
