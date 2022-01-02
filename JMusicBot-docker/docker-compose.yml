@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  jmusicbot:
+    restart: unless-stopped
+    image: rafaelsgirao/yourmusicbot
+    #I recommend an instance per server so each bot can have a working 'Now playing' status msg
+    container_name: jmusicbot_yourbot
+    build: .
+    volumes:
+      - ./config:/config
+      #    environment:
+
