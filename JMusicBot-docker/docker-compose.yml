@@ -1,13 +1,14 @@
 version: '2'
 
 services:
-  jmusicbot:
+  musicbot-example:
     restart: unless-stopped
-    image: rafaelsgirao/yourmusicbot
+    image: rafaelsgirao/jmusicbot-docker
     #I recommend an instance per server so each bot can have a working 'Now playing' status msg
-    container_name: jmusicbot_yourbot
+    container_name: musicbot_example
     build: .
     volumes:
-      - ./config:/config
-      #    environment:
+      - type: bind
+        source: ./config-example.txt
+        target: /config/config.txt
 
