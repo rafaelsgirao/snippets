@@ -4,7 +4,7 @@ import requests
 import os
 import logging
 #import json
-from urllib.error import HTTPError
+from requests.exceptions import RequestException #all requests exceptions inherit from this
 import time
 
 #Constants
@@ -72,7 +72,7 @@ class CoinValue:
             try:
                 coin_value = endpoint()
                 break
-            except HTTPError as e:
+            except RequestException as e:
                 logging.info(f"Couldn't get coin value at endpoint {endpoint.__name__}. Reason: {str(e)}")
                 #Move on to next endpoint
                 continue
@@ -102,8 +102,11 @@ class CoinValue:
         except ValueError as e:
             logging.error(f"Failed to load file '{self.target_file}'. Reason: {str(e)}")
 
-def post_webhook(title, color, content=""):
+def post_webhook(title, color, footer="", content=""):
     webhook = os.environ["COINBOT_WEBHOOK_URL"]
+
+    if footer != "":
+        footer = "Provider: " + footer
 
     data = {
         "username" : "Stonks",
@@ -113,7 +116,10 @@ def post_webhook(title, color, content=""):
         {
           "title": title,
           "description": content,
-          "color": color
+          "color": color,
+          "footer": {
+              "text": footer
+          }
         }
       ]
     }
@@ -193,7 +199,7 @@ def main():
     except Exception as e:
         logging.fatal(f"Houston, we have a problem.")
         logging.exception(e)
-        post_webhook("Exception occurred while getting price.", COLOR_RED, content="Check logs for details")
+        post_webhook("Exception occurred while getting price.", COLOR_RED, content="Check logs for details [https://rafael.ovh/coin_bot.log](here).")
         sys.exit(-1)
 
 
