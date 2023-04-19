@@ -3,11 +3,12 @@ import sys
 import requests
 import os
 import logging
-#import json
-from requests.exceptions import RequestException #all requests exceptions inherit from this
+
+# import json
+from requests.exceptions import RequestException  # all requests exceptions inherit from this
 import time
 
-#Constants
+# Constants
 COLOR_RED = 16711680
 COLOR_YELLOW = 16776960
 COLOR_GREEN = 6750054
@@ -19,12 +20,12 @@ CHANGE_BOUND = 0.10  # 10%
 COINBOT_WEBHOOK_URL = os.getenv("COINBOT_WEBHOOK_URL")
 
 logging.basicConfig(
-        filename='coin_bot.log',
-        encoding='utf-8',
-        format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
-        datefmt='[%d-%m-%Y %H:%M:%S]',
-        level=logging.DEBUG
-        )
+    filename="coin_bot.log",
+    encoding="utf-8",
+    format="%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s",
+    datefmt="[%d-%m-%Y %H:%M:%S]",
+    level=logging.DEBUG,
+)
 
 
 class CoinValue:
@@ -34,7 +35,7 @@ class CoinValue:
     value = False
 
     def __init__(self, coin):
-        previous_value = False    
+        # previous_value = False
         if coin not in self.valid_coins:
             logging.warn(f"Attempted to init CoinValue with an unknown coin '{coin}'")
             raise ValueError
@@ -44,7 +45,7 @@ class CoinValue:
 
     def get_previous(self):
         return self.previous_value
-    
+
     def update_previous(self):
         logging.debug(f"Updating previous value, current = {self.value}, previous was {self.previous_value}")
         self.previous_value = self.value
@@ -57,14 +58,18 @@ class CoinValue:
             r = requests.get(f"https://api.coinbase.com/v2/prices/{self.coin}-EUR/spot")
             r.raise_for_status()
             coin_value = float(r.json()["data"]["amount"])
-            logging.debug(f"Sucessfully got {self.coin} value from Coinbase, raw val={coin_value}, code {r.status_code}")
+            logging.debug(
+                f"Sucessfully got {self.coin} value from Coinbase, raw val={coin_value}, code {r.status_code}"
+            )
             return round(coin_value, SENSITIVITY)
-    
+
         def get_value_rate_sx():
             coin_adapted = self.coin.lower()
             r = requests.get(f"https://eur.rate.sx/1{coin_adapted}")
             coin_value = float(r.text)
-            logging.debug(f"Sucessfully got {self.coin}/{coin_adapted} value from rate.sx, raw val={coin_value}, code {r.status_code}")
+            logging.debug(
+                f"Got {self.coin}/{coin_adapted} value from rate.sx, raw val={coin_value}, code {r.status_code}"
+            )
             return round(coin_value, SENSITIVITY)
 
         endpoints = [get_value_coinbase, get_value_rate_sx]
@@ -74,18 +79,18 @@ class CoinValue:
                 break
             except RequestException as e:
                 logging.info(f"Couldn't get coin value at endpoint {endpoint.__name__}. Reason: {str(e)}")
-                #Move on to next endpoint
+                # Move on to next endpoint
                 continue
-        if coin_value == False:
+        if coin_value is False:
             logging.error(f"Couldn't get coin {self.coin} value with any known method.")
             raise ValueError
         self.value = coin_value
         return coin_value
 
     def dump_previous(self):
-        if self.previous_value == False:
+        if self.previous_value is False:
             logging.error("Attempted to dump an incorrect coin value")
-            #raise ValueError
+            # raise ValueError
             return
         try:
             with open(self.target_file, "w") as f:
@@ -93,7 +98,7 @@ class CoinValue:
             logging.debug(f"Dumped previous value to file; previous_value='{self.previous_value}'")
         except ValueError as e:
             logging.error(f"Failed to dump to file {self.target_file}. Reason: '{str(e)}'")
-        
+
     def load_previous(self):
         try:
             with open(self.target_file, "r") as f:
@@ -102,6 +107,7 @@ class CoinValue:
         except ValueError as e:
             logging.error(f"Failed to load file '{self.target_file}'. Reason: {str(e)}")
 
+
 def post_webhook(title, color, footer="", content=""):
     webhook = os.environ["COINBOT_WEBHOOK_URL"]
 
@@ -109,21 +115,12 @@ def post_webhook(title, color, footer="", content=""):
         footer = "Provider: " + footer
 
     data = {
-        "username" : "Stonks",
-        "avatar_url" : "https://cdn.discordapp.com/emojis/833432167756464184.png?v=1",
-#        "content": content,
-        "embeds": [
-        {
-          "title": title,
-          "description": content,
-          "color": color,
-          "footer": {
-              "text": footer
-          }
-        }
-      ]
+        "username": "Stonks",
+        "avatar_url": "https://cdn.discordapp.com/emojis/833432167756464184.png?v=1",
+        #        "content": content,
+        "embeds": [{"title": title, "description": content, "color": color, "footer": {"text": footer}}],
     }
-    result = requests.post(webhook, json = data)
+    result = requests.post(webhook, json=data)
     try:
         result.raise_for_status()
     except requests.exceptions.HTTPError as err:
@@ -131,31 +128,34 @@ def post_webhook(title, color, footer="", content=""):
     else:
         logging.info("Webhook delivered successfully, code {}.".format(result.status_code))
 
+
 def update_condition(time, change):
     from math import e
-    left_up = pow(e, time/TIME_BOUND) - 1
+
+    left_up = pow(e, time / TIME_BOUND) - 1
     left_down = e - 1
-    right_up = pow(e, change/CHANGE_BOUND) -1
+    right_up = pow(e, change / CHANGE_BOUND) - 1
     right_down = e - 1
 
-    return (left_up/left_down + right_up/right_down) >= 1
-        
+    return (left_up / left_down + right_up / right_down) >= 1
+
+
 def main():
-    logging.debug(f"Script started.")
+    logging.debug("Script started.")
     try:
         bat = CoinValue("BAT")
         bat_val = bat.get_value()
         try:
             bat.load_previous()
             previous_val = bat.get_previous()
-        except IOError as e:
+        except IOError:
             logging.info("Error ocurred while loading previous val file, continuing.")
-            filetime_condition = False
+            # filetime_condition = False
             previous_val = False
 
         logging.debug(f"Var debug: bat_val='{bat_val}', previous='{previous_val}'")
 
-        if previous_val == False:
+        if previous_val is False:
             logging.error("previous_val was False, overriding with new.")
             color = COLOR_YELLOW
             msg = f"BAT {bat_val}€"
@@ -167,41 +167,47 @@ def main():
             logging.debug("previous_val wasn't false, continuing")
             delta = abs(bat_val - previous_val)
 
-            #Epoch
+            # Epoch
             target_file = bat.get_target_file()
             if not (os.path.isfile(target_file)):
                 logging.info("Previous value file doesn't yet exist, ignoring on delta check")
-                filetime_condition = False
-            else: 
+                # filetime_condition = False
+            else:
                 logging.debug(f"target_file = {target_file}")
 
             file_modified_time = int(os.path.getmtime(target_file))
             current_time = int(time.time())
 
-            if update_condition(current_time - file_modified_time, delta/previous_val):
+            if update_condition(current_time - file_modified_time, delta / previous_val):
                 logging.debug("Deltas condition passed")
                 if bat_val > previous_val:
                     color = COLOR_GREEN
-                    #content = "<:stonks:833381927255539743>"
+                    # content = "<:stonks:833381927255539743>"
                 elif bat_val == previous_val:
                     color = COLOR_YELLOW
                 else:
                     color = COLOR_RED
-    
+
                 msg = f"BAT {bat_val}€"
-                
+
                 bat.update_previous()
                 bat.dump_previous()
                 post_webhook(msg, color)
             else:
-                logging.debug(f"Delta condition failed. delta='{delta}', previous_val='{previous_val}', bat_val = '{bat_val}'")
+                logging.debug(
+                    f"Delta condition failed. delta='{delta}', previous_val='{previous_val}', bat_val = '{bat_val}'"
+                )
 
     except Exception as e:
-        logging.fatal(f"Houston, we have a problem.")
+        logging.fatal("Houston, we have a problem.")
         logging.exception(e)
-        post_webhook("Exception occurred while getting price.", COLOR_RED, content="Check logs for details [https://rafael.ovh/coin_bot.log](here).")
+        post_webhook(
+            "Exception occurred while getting price.",
+            COLOR_RED,
+            content="Check logs for details [https://rafael.ovh/coin_bot.log](here).",
+        )
         sys.exit(-1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
