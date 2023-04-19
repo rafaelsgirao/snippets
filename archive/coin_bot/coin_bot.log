@@ -1,0 +1,26 @@
+[12-01-2022 10:14:07].154 DEBUG coin_bot - main: Script started.
+[12-01-2022 10:14:07].155 DEBUG coin_bot - __init__: CoinValue instanced, coin='BAT', target_file='coin_val-BAT.txt'
+[12-01-2022 10:14:07].157 DEBUG connectionpool - _new_conn: Starting new HTTPS connection (1): rafael.ovh:443
+[12-01-2022 10:14:07].435 DEBUG connectionpool - _make_request: https://rafael.ovh:443 "GET /v2/prices/BAT-EUR/spot HTTP/1.1" 404 0
+[12-01-2022 10:14:07].438 INFO coin_bot - get_value: Couldn't get coin value at endpoint get_value_coinbase. Reason: 404 Client Error: Not Found for url: https://rafael.ovh/v2/prices/BAT-EUR/spot
+[12-01-2022 10:14:07].442 DEBUG connectionpool - _new_conn: Starting new HTTPS connection (1): eur.rate.sx:443
+[12-01-2022 10:14:08].827 DEBUG connectionpool - _make_request: https://eur.rate.sx:443 "GET /1bat HTTP/1.1" 200 15
+[12-01-2022 10:14:08].830 DEBUG coin_bot - get_value_rate_sx: Sucessfully got BAT/bat value from rate.sx, raw val=0.946451438778, code 200
+[12-01-2022 10:14:08].831 INFO coin_bot - main: Error ocurred while loading previous val file, continuing.
+[12-01-2022 10:14:08].831 DEBUG coin_bot - main: Var debug: bat_val='0.95', previous='False'
+[12-01-2022 10:14:08].831 ERROR coin_bot - main: previous_val was False, overriding with new.
+[12-01-2022 10:14:08].835 DEBUG connectionpool - _new_conn: Starting new HTTPS connection (1): discord.com:443
+[12-01-2022 10:14:09].749 DEBUG connectionpool - _make_request: https://discord.com:443 "POST /api/webhooks/930762260203339846/7Y7qrhhmbDelbOPy2TRqqnaoUHGis8nuVi5ZrVe5MNLYRYgJohHHhwCKJT-IlzcrnTES HTTP/1.1" 204 0
+[12-01-2022 10:14:09].753 INFO coin_bot - post_webhook: Webhook delivered successfully, code 204.
+[12-01-2022 10:14:09].754 DEBUG coin_bot - update_previous: Updating previous value, current = 0.95, previous was False
+[12-01-2022 10:14:09].754 DEBUG coin_bot - dump_previous: Dumped previous value to file; previous_value='0.95'
+[12-01-2022 10:15:00].335 DEBUG coin_bot - main: Script started.
+[12-01-2022 10:15:00].335 DEBUG coin_bot - __init__: CoinValue instanced, coin='BAT', target_file='coin_val-BAT.txt'
+[12-01-2022 10:15:00].337 DEBUG connectionpool - _new_conn: Starting new HTTPS connection (1): api.coinbase.com:443
+[12-01-2022 10:15:02].507 DEBUG connectionpool - _make_request: https://api.coinbase.com:443 "GET /v2/prices/BAT-EUR/spot HTTP/1.1" 200 None
+[12-01-2022 10:15:02].512 DEBUG coin_bot - get_value_coinbase: Sucessfully got BAT value from Coinbase, raw val=0.95, code 200
+[12-01-2022 10:15:02].513 DEBUG coin_bot - load_previous: Loaded previous value from file; previous_value='0.95'
+[12-01-2022 10:15:02].513 DEBUG coin_bot - main: Var debug: bat_val='0.95', previous='0.95'
+[12-01-2022 10:15:02].513 DEBUG coin_bot - main: previous_val wasn't false, continuing
+[12-01-2022 10:15:02].513 DEBUG coin_bot - main: target_file = coin_val-BAT.txt
+[12-01-2022 10:15:02].513 DEBUG coin_bot - main: Delta condition failed. delta='0.0', previous_val='0.95', bat_val = '0.95'
